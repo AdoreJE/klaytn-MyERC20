@@ -26,7 +26,7 @@ contract('MyERC20', function([deployer, user1, user2]){
         assert.equal(amount, 1000);
     })
 
-    describe.only('Transfer', function() {
+    describe('Transfer', function() {
         it('transfer test', async() => {
             let result = await erc20.transfer(deployer, user1, 3);
             let callerAmount = await erc20.balanceOf(deployer);
@@ -36,5 +36,36 @@ contract('MyERC20', function([deployer, user1, user2]){
             console.log(result.logs[0].event)
         })
     })
+
+    describe('Allowance Approve', function() {
+        it('approve test', async() => {
+            let approvalResult = await erc20.approve(deployer, user1, 111)
+            let callerAmount = await erc20.balanceOf(deployer);
+            let spenderAmount = await erc20.balanceOf(user1);
+            console.log("caller amount: " + callerAmount);
+            console.log("spender amount: " + spenderAmount);
+            console.log(approvalResult.logs[0].event)
+
+            let user1Allowance = await erc20.allowance(deployer, user1);
+            assert.equal(user1Allowance, 111)
+        })
+       
+    })
+
+    describe.only('transferFrom', function() {
+        it('transferFrom' ,async() =>{
+            let approvalResult = await erc20.approve(deployer, user1, 111)
+            let result = await erc20.transferFrom(deployer, user1, user2, 22);
+            let spenderAllowance = await erc20.allowance(deployer, user1);
+            let recipientBalance = await erc20.balanceOf(user2);
+            
+            console.log(spenderAllowance.toString())
+            // assert.equal(spenderAllowance, 106)
+
+            console.log(recipientBalance.toString())
+            // assert.equal(recipientBalance, 5)
+        })
+    })
+
    
 })

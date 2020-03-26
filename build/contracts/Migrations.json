@@ -890,12 +890,12 @@
     "1001": {
       "events": {},
       "links": {},
-      "address": "0x301a7A0fdD972b40A4E72B0C79408d37f35081Cb",
-      "transactionHash": "0x374a60346fb8d8211160f02825285b77c932d74373bc61177d58ada46ceb12d1"
+      "address": "0x8A640C303a66DDEf6261d5F2A53E029394B879Cb",
+      "transactionHash": "0xb0968dad45b8132c9feb55ed2629af51901fff7bfa5575d9fa98d605b14b61e9"
     }
   },
   "schemaVersion": "3.0.23",
-  "updatedAt": "2020-03-24T09:07:23.311Z",
+  "updatedAt": "2020-03-26T09:51:28.915Z",
   "networkType": "ethereum",
   "devdoc": {
     "methods": {}
