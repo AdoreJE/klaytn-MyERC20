@@ -4,10 +4,11 @@ contract MyERC20 {
     string Name;
     string Symbol;
     address Owner;
-    uint TotalSupply;
+    // uint TotalSupply;
 
     mapping (address=>uint) balance;
     mapping (address=>mapping(address=>uint)) _allowance;
+    mapping (string=>uint) _TotalSupply;
     
     event Transfer(
         address Caller,
@@ -24,9 +25,10 @@ contract MyERC20 {
     constructor (string memory _name, string memory _symbol, uint _totalSupply) public {
         Name = _name;
         Symbol = _symbol;
-        TotalSupply = _totalSupply;
+        _TotalSupply[Name] = _totalSupply;
+        // TotalSupply = _totalSupply;
         Owner = msg.sender;
-        balance[Owner] = balance[Owner] + TotalSupply;
+        balance[Owner] = balance[Owner] + _TotalSupply[Name];
     }
 
     // getName is call function
@@ -44,7 +46,7 @@ contract MyERC20 {
     // totalSupply is call
     // returns total amount of token
     function totalSupply() public view returns(uint) {
-        return TotalSupply;
+        return _TotalSupply[Name];
     }
 
     // balanceOf is call function
@@ -92,7 +94,7 @@ contract MyERC20 {
     // of spender over the owner tokens
     // params - owner's address, spender's address, amount of token
     function approve(address owner, address spender, uint amount) public{
-        require(amount >= 0, "amount must be positive");
+        require(int(amount) >= 0, "amount must be positive");
         _allowance[owner][spender] = amount;
         emit Approval(owner, spender, amount);
     }
@@ -106,5 +108,63 @@ contract MyERC20 {
         require(int(spenderAllowance) - int(amount) >= 0, "spenderAllowance not sufficient");
         uint approveAmount = spenderAllowance - amount;
         approve(owner, spender, approveAmount);
+    }
+
+    // increaseAllowance is send function that increases spender's allowance by owner
+    // params - owner's address, spender's address, amount of allowance
+    function increaseAllowance(address owner, address spender, uint amount) public {
+        // check amount is positive
+        require(int(amount) > 0, "amount must be positive");
+
+        // get allowance
+        uint spenderAllowance = allowance(owner, spender);
+
+        // save allowance
+        approve(owner, spender, spenderAllowance + amount);
+    }
+
+    // decreaseAllowance is send function that decreases spender's allowance by owner
+    // params - owner's address, spender's address, amount of allowance
+    function decreaseAllowance(address owner, address spender, uint amount) public {
+        // check amount is positive
+        require(int(amount) > 0, "amount must be positive");
+
+        // get allowance
+        uint spenderAllowance = allowance(owner, spender);
+        require(int(spenderAllowance) - int(amount) >= 0, "spenderAllowance not sufficient");
+        // save allowance
+        approve(owner, spender, spenderAllowance - amount);
+    }
+
+    // mint is send function that creates amount tokens and assign them to address, increasing the total supply
+    // params - tokenName, recipient's address, amount
+    function mint(string memory tokenName, address recipient, uint amount) public {
+        // amount must be positive
+        require(int(amount) > 0, "amount must  be positive");
+
+        // increase TotalSupply
+        _TotalSupply[tokenName] = _TotalSupply[tokenName] + amount;
+
+        // increase owner balance
+        uint curBalance = balanceOf(recipient);
+        balance[recipient] = curBalance + amount;
+
+        // emit TransferEvent
+        emit Transfer(recipient, recipient, amount);
+    }
+
+    // burn is send function that decreases the total supply
+    // params - tokenName, recipient's address, amount
+    function burn(string memory tokenName, address recipient, uint amount) public {
+        // amount must be positive
+        require(int(amount) > 0, "amount must  be positive");
+        require(int(_TotalSupply[tokenName]) - int(amount) >= 0, "totalSupply not sufficient");
+        
+        // decrease TotalSupply
+        _TotalSupply[tokenName] = _TotalSupply[tokenName] - amount;
+
+        // decrease owner balance
+        uint curBalance = balanceOf(recipient);
+        balance[recipient] = curBalance - amount;
     }
 }
